@@ -1,0 +1,141 @@
+require 'openssl'
+
+class PBKDF2
+  def initialize(opts={})
+    @hash_function = OpenSSL::Digest::Digest.new("sha256")
+    
+    # override with options
+    opts.each_key do |k|
+      if self.respond_to?("#{k}=")
+        self.send("#{k}=", opts[k])
+      else
+        raise ArgumentError, "Argument '#{k}' is not allowed"
+      end
+    end
+    
+    yield self if block_given?
+    
+    # make sure the relevant things got set
+    raise ArgumentError, "password not set" if @password.nil?
+    raise ArgumentError, "salt not set" if @salt.nil?
+    raise ArgumentError, "iterations not set" if @iterations.nil?
+  end
+  attr_reader :key_length, :hash_function, :iterations
+  attr_accessor :salt, :password
+  
+  def key_length=(l)
+    raise ArgumentError, "key too short" if l < 1
+    raise ArgumentError, "key too long" if l > ((2^32 - 1) * @hash_function.size)
+    @key_length = l
+  end
+  
+  def hash_function=(h) 
+    @hash_function = find_hash(h)
+    # set the key_length to be the hash length, unless it's already been set
+    @key_length ||= @hash_function.size
+  end
+  
+  def iterations=(i)
+    raise ArgumentError, "iterations can't be less than 1" if i < 1
+    @iterations = i
+  end
+  
+  def value
+    calculate! if @value.nil?
+    @value
+  end    
+  
+  alias bin_string value
+    
+  def hex_string
+    bin_string.unpack("H*").first
+  end
+  
+  # return number of milliseconds it takes to complete one iteration
+  def benchmark!
+    iter_orig = @iterations
+    @iterations=100000
+    start = Time.now
+    calculate!
+    time = Time.now - start
+    @iterations = iter_orig
+    return (time/100000)
+  end
+  
+  protected
+  
+  # finds and instantiates, if necessary, a hash function
+  def find_hash(hash)
+    case hash
+    when Class
+      # allow people to pass in classes to be instantiated
+      # (eg, pass in OpenSSL::Digest::SHA1)
+      hash = find_hash(hash.new)
+    when Symbol
+      # convert symbols to strings and see if OpenSSL::Digest can make sense of
+      hash = find_hash(hash.to_s)
+    when String
+      # if it's a string, first strip off any leading 'hmacWith' (which is implied)
+      hash.gsub!(/^hmacWith/i,'')
+      # see if the OpenSSL lib understands it
+      hash = OpenSSL::Digest::Digest.new(hash)
+    when OpenSSL::Digest::Digest
+      # ok
+    else
+      raise TypeError, "Unknown hash type: #{hash.class}"
+    end
+    hash
+  end
+  
+  # the pseudo-random function defined in the spec
+  # note that we always dup the hmac before using it; otherwise, the hmac
+  # object would retain state from calculation to calculation
+  def prf(data)
+    hmac = @hmac.dup
+    hmac.update(data).digest
+  end
+  
+  # this is a translation of the helper function "F" defined in the spec
+  def calculate_block(block_num)
+    # u_1:
+    u = prf(salt+[block_num].pack("N"))
+    ret = u
+    # u_2 through u_c:
+    2.upto(@iterations) do
+      # calculate u_n
+      u = prf(u)
+      # xor it with the previous results
+      ret = ret^u
+    end
+    ret
+  end
+
+  # the bit that actually does the calculating
+  def calculate!
+    # build the hmac object:
+    @hmac = OpenSSL::HMAC.new(@password, @hash_function)
+    # how many blocks we'll need to calculate (the last may be truncated)
+    blocks_needed = (@key_length.to_f / @hash_function.size).ceil
+    # reset
+    @value = ""
+    # main block-calculating loop:
+    1.upto(blocks_needed) do |block_num|
+     @value << calculate_block(block_num)
+    end
+    # truncate to desired length:
+    @value = @value.slice(0,@key_length)
+    @value
+    end
+end
+
+
+class String
+  def ^(other)
+    raise ArgumentError, "Can't bitwise-XOR a String with a non-String" \
+      unless other.kind_of? String
+    raise ArgumentError, "Can't bitwise-XOR strings of different length" \
+      unless self.length == other.length
+    result = (0..self.length-1).collect { |i| self[i] ^ other[i] }
+    result.pack("C*")
+  end
+end
