@@ -176,7 +176,9 @@ describe PBKDF2, "when deriving keys" do
       p.iterations = 50
       # this is a gorram horrible test case.  it took me quite a while to
       # track down why 0xf09d849e should be interpreted as "\360\235\204\236"
-      # (which is what other code uses for this example)
+      # (which is what other code uses for this example).  the mysterious 
+      # "g-clef" annotation didn't help (turns out to be a Unicode character
+      # in UTF8 -- ie, 0xf0 0x9d 0x84 0x9e)
       p.password = [0xf09d849e].pack("N")
       p.salt = "EXAMPLE.COMpianist"
       p.key_length = 128/8

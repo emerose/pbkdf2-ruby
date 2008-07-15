@@ -65,14 +65,14 @@ class PBKDF2
   end
   
   # return number of milliseconds it takes to complete one iteration
-  def benchmark!
+  def benchmark(iters = 400000)
     iter_orig = @iterations
-    @iterations=100000
+    @iterations=iters
     start = Time.now
     calculate!
     time = Time.now - start
     @iterations = iter_orig
-    return (time/100000)
+    return (time/iters)
   end
   
   protected
