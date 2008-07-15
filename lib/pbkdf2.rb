@@ -14,30 +14,43 @@ class PBKDF2
     end
     
     yield self if block_given?
+
+    # set this to the default if nothing was given
+    @key_length ||= @hash_function.size
     
     # make sure the relevant things got set
     raise ArgumentError, "password not set" if @password.nil?
     raise ArgumentError, "salt not set" if @salt.nil?
     raise ArgumentError, "iterations not set" if @iterations.nil?
   end
-  attr_reader :key_length, :hash_function, :iterations
-  attr_accessor :salt, :password
+  attr_reader :key_length, :hash_function, :iterations, :salt, :password
   
   def key_length=(l)
     raise ArgumentError, "key too short" if l < 1
-    raise ArgumentError, "key too long" if l > ((2^32 - 1) * @hash_function.size)
+    raise ArgumentError, "key too long" if l > ((2**32 - 1) * @hash_function.size)
+    @value = nil
     @key_length = l
   end
   
   def hash_function=(h) 
+    @value = nil
     @hash_function = find_hash(h)
-    # set the key_length to be the hash length, unless it's already been set
-    @key_length ||= @hash_function.size
   end
   
   def iterations=(i)
     raise ArgumentError, "iterations can't be less than 1" if i < 1
+    @value = nil
     @iterations = i
+  end
+  
+  def salt=(s)
+    @value = nil
+    @salt = s
+  end
+  
+  def password=(p)
+    @value = nil
+    @password = p
   end
   
   def value
@@ -125,7 +138,7 @@ class PBKDF2
     # truncate to desired length:
     @value = @value.slice(0,@key_length)
     @value
-    end
+  end
 end
 
 
