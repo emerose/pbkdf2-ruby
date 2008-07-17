@@ -68,6 +68,9 @@ PBKDF2 objects can also be configured with the following options:
     * A symbol, like `:sha256`, that, when converted to a string, meets the
       rules for strings above.
 
+  If not specified, SHA-256 will be used.  (Note that other implementations
+  may default to SHA-1.)
+
 * **`key_length`**: The length, in bytes, of the key you wish to generate.
 
   By default, the key generated will be equal in length to the hash output
