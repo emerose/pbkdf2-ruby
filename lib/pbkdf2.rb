@@ -92,6 +92,7 @@ class PBKDF2
       hash.gsub!(/^hmacWith/i,'')
       # see if the OpenSSL lib understands it
       hash = OpenSSL::Digest::Digest.new(hash)
+    when OpenSSL::Digest
     when OpenSSL::Digest::Digest
       # ok
     else
@@ -143,12 +144,30 @@ end
 
 
 class String
+  if RUBY_VERSION >= "1.9"
+    def xor_impl(other)
+      result = ""
+      o_bytes = other.bytes.to_a
+      bytes.each_with_index do |c, i|
+        result << (c ^ o_bytes[i])
+      end
+      result
+    end
+  else
+    def xor_impl(other)
+      result = (0..self.length-1).collect { |i| self[i] ^ other[i] }
+      result.pack("C*")
+    end
+  end
+
+  private :xor_impl
+
   def ^(other)
     raise ArgumentError, "Can't bitwise-XOR a String with a non-String" \
       unless other.kind_of? String
     raise ArgumentError, "Can't bitwise-XOR strings of different length" \
       unless self.length == other.length
-    result = (0..self.length-1).collect { |i| self[i] ^ other[i] }
-    result.pack("C*")
+
+    xor_impl(other)
   end
 end
