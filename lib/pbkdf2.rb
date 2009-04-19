@@ -102,11 +102,8 @@ class PBKDF2
   end
   
   # the pseudo-random function defined in the spec
-  # note that we always dup the hmac before using it; otherwise, the hmac
-  # object would retain state from calculation to calculation
   def prf(data)
-    hmac = @hmac.dup
-    hmac.update(data).digest
+    OpenSSL::HMAC.digest(@hash_function, @password, data)
   end
   
   # this is a translation of the helper function "F" defined in the spec
@@ -126,8 +123,6 @@ class PBKDF2
 
   # the bit that actually does the calculating
   def calculate!
-    # build the hmac object:
-    @hmac = OpenSSL::HMAC.new(@password, @hash_function)
     # how many blocks we'll need to calculate (the last may be truncated)
     blocks_needed = (@key_length.to_f / @hash_function.size).ceil
     # reset
