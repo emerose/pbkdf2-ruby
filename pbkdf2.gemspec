@@ -19,11 +19,14 @@ Gem::Specification.new do |s|
   s.files = [
     "LICENSE.TXT",
      "README.markdown",
+     "Rakefile",
      "VERSION",
      "benchmark.rb",
      "lib/pbkdf2.rb",
+     "pbkdf2.gemspec",
      "spec/pbkdf2_spec.rb",
      "spec/rfc3962_spec.rb",
+     "spec/spec.opts",
      "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://github.com/emerose/pbkdf2-ruby}
