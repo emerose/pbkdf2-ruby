@@ -1,7 +1,7 @@
 require 'benchmark'
 require 'lib/pbkdf2'
 
-n = 5000
+n = 100000
 #
 # from active-ldap
 module Salt
@@ -17,7 +17,7 @@ module Salt
 end
 
 def next_salt
-  Salt.generate(64)
+  Salt.generate(8)
 end
 Benchmark.bm do |x|
   x.report do
@@ -25,7 +25,7 @@ Benchmark.bm do |x|
       PBKDF2.new do |p| 
         p.password = "s33krit"
         p.salt = next_salt
-        p.iterations = 10000
+        p.iterations = 1000
       end
     end
   end
