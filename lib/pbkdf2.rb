@@ -3,7 +3,7 @@ require 'openssl'
 class PBKDF2
   def initialize(opts={})
     @hash_function = OpenSSL::Digest::Digest.new("sha256")
-    
+
     # override with options
     opts.each_key do |k|
       if self.respond_to?("#{k}=")
@@ -12,58 +12,58 @@ class PBKDF2
         raise ArgumentError, "Argument '#{k}' is not allowed"
       end
     end
-    
+
     yield self if block_given?
 
     # set this to the default if nothing was given
     @key_length ||= @hash_function.size
-    
+
     # make sure the relevant things got set
     raise ArgumentError, "password not set" if @password.nil?
     raise ArgumentError, "salt not set" if @salt.nil?
     raise ArgumentError, "iterations not set" if @iterations.nil?
   end
   attr_reader :key_length, :hash_function, :iterations, :salt, :password
-  
+
   def key_length=(l)
     raise ArgumentError, "key too short" if l < 1
     raise ArgumentError, "key too long" if l > ((2**32 - 1) * @hash_function.size)
     @value = nil
     @key_length = l
   end
-  
-  def hash_function=(h) 
+
+  def hash_function=(h)
     @value = nil
     @hash_function = find_hash(h)
   end
-  
+
   def iterations=(i)
     raise ArgumentError, "iterations can't be less than 1" if i < 1
     @value = nil
     @iterations = i
   end
-  
+
   def salt=(s)
     @value = nil
     @salt = s
   end
-  
+
   def password=(p)
     @value = nil
     @password = p
   end
-  
+
   def value
     calculate! if @value.nil?
     @value
-  end    
-  
+  end
+
   alias bin_string value
-    
+
   def hex_string
     bin_string.unpack("H*").first
   end
-  
+
   # return number of milliseconds it takes to complete one iteration
   def benchmark(iters = 400000)
     iter_orig = @iterations
@@ -74,9 +74,9 @@ class PBKDF2
     @iterations = iter_orig
     return (time/iters)
   end
-  
+
   protected
-  
+
   # finds and instantiates, if necessary, a hash function
   def find_hash(hash)
     case hash
@@ -100,12 +100,12 @@ class PBKDF2
     end
     hash
   end
-  
+
   # the pseudo-random function defined in the spec
   def prf(data)
     OpenSSL::HMAC.digest(@hash_function, @password, data)
   end
-  
+
   # this is a translation of the helper function "F" defined in the spec
   def calculate_block(block_num)
     # u_1:
@@ -141,7 +141,7 @@ end
 class String
   if RUBY_VERSION >= "1.9"
     def xor_impl(other)
-      result = ""
+      result = "".encode("ASCII-8BIT")
       o_bytes = other.bytes.to_a
       bytes.each_with_index do |c, i|
         result << (c ^ o_bytes[i])
