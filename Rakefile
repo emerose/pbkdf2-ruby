@@ -11,6 +11,7 @@ begin
     gem.homepage = "http://github.com/emerose/pbkdf2-ruby"
     gem.authors = ["Sam Quigley"]
     gem.add_development_dependency "rspec", ">= 1.2.9"
+    gem.add_development_dependency "rdoc", ">= 2.4.2"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
@@ -18,24 +19,19 @@ rescue LoadError
   puts "Jeweler (or a dependency) not available. Install it with: gem install jeweler"
 end
 
-require 'spec/rake/spectask'
-Spec::Rake::SpecTask.new(:spec) do |spec|
-  spec.libs << 'lib' << 'spec'
-  spec.spec_files = FileList['spec/**/*_spec.rb']
-end
+require 'rspec/core/rake_task'
 
-Spec::Rake::SpecTask.new(:rcov) do |spec|
-  spec.libs << 'lib' << 'spec'
+RSpec::Core::RakeTask.new(:spec) do |spec|
+  spec.rspec_opts = ["--color", "--format progress", "-r ./spec/spec_helper.rb"]
   spec.pattern = 'spec/**/*_spec.rb'
-  spec.rcov = true
 end
 
 task :spec => :check_dependencies
 
 task :default => :spec
 
-require 'rake/rdoctask'
-Rake::RDocTask.new do |rdoc|
+require 'rdoc/task'
+RDoc::Task.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
