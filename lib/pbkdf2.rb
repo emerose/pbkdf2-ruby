@@ -2,7 +2,7 @@ require 'openssl'
 
 class PBKDF2
   def initialize(opts={})
-    @hash_function = OpenSSL::Digest::Digest.new("sha256")
+    @hash_function = OpenSSL::Digest.new("sha256")
 
     # override with options
     opts.each_key do |k|
@@ -91,7 +91,7 @@ class PBKDF2
       # if it's a string, first strip off any leading 'hmacWith' (which is implied)
       hash.gsub!(/^hmacWith/i,'')
       # see if the OpenSSL lib understands it
-      hash = OpenSSL::Digest::Digest.new(hash)
+      hash = OpenSSL::Digest.new(hash)
     when OpenSSL::Digest
     when OpenSSL::Digest::Digest
       # ok
