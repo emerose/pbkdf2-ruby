@@ -1,6 +1,8 @@
 require 'openssl'
 
 class PBKDF2
+  VERSION = '0.2.2'
+
   def initialize(opts={})
     @hash_function = OpenSSL::Digest.new("sha256")
 
