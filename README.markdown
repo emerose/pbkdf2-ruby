@@ -5,9 +5,9 @@ A Ruby implementation of the [Password-Based Key-Derivation Function, uh,
 
 ## Using PBKDF2 ##
 
-The basic steps are: 
+The basic steps are:
 
-1. Instantiate a `PBKDF2` object 
+1. Instantiate a `PBKDF2` object
 2. Call `#bin_string` (or `#hex_string`) on it to recover the binary (hex) form of the key
 
 To instantiate, you can either pass the required arguments as options in a
@@ -17,7 +17,7 @@ hash, like so:
 
 or use the (easier and prettier, in my view) builder idiom:
 
-    PBKDF2.new do |p| 
+    PBKDF2.new do |p|
       p.password = "s33krit"
       p.salt = "nacl"
       p.iterations = 10000
@@ -50,7 +50,7 @@ A `PBKDF2` object cannot be instantiated without setting the following options:
 
 PBKDF2 objects can also be configured with the following options:
 
-* **`hash_function`**: The hashing algorithm to be used.  
+* **`hash_function`**: The hashing algorithm to be used.
 
   This option may be expressed in a number of ways:
     * As a `Class` object, such as `OpenSSL::Digest::SHA512`. Only OpenSSL
@@ -59,7 +59,7 @@ PBKDF2 objects can also be configured with the following options:
       `OpenSSL::Digest::SHA512.new`. If you use this method, take care that
       the hash object is in its just-initialized state (or that the same hash
       object with the same state is used whenever keys are generated/checked).
-    * As a string which is understood by `OpenSSL::Digest::Digest.new()`.  
+    * As a string which is understood by `OpenSSL::Digest.new()`.
       Things like "sha1", "md5", "RIPEMD160", etc. all work fine.  If the
       string begins with the text "hmacWith" it will be stripped before
       passing it to the underlying OpenSSL library, making it possible to use
@@ -81,7 +81,7 @@ If a required parameter is missing, or if an invalid parameter is passed to one 
 
 ## Setting the Number of Iterations ##
 
-The `iterations` option exposed by PBKDF2 provides a way of controlling the 
+The `iterations` option exposed by PBKDF2 provides a way of controlling the
 amount of work required to check a candidate passphrase.  It can be thought of
 as a work factor governing the amount of work an attacker must do in order to
 perform a dictionary or brute-force attack on passwords.  Unfortunately, it
@@ -114,7 +114,7 @@ conditions, or the impact of a few milliseconds' delay on end-user
 perceptions.  The best approach will necessarily involve trying both
 approaches and balancing the competing concerns against one-another.
 
-Note that no default for this option is provided, as a way of forcing 
+Note that no default for this option is provided, as a way of forcing
 implementors to consider this issue in their own contexts. Anyone who, having
 read and understood the above, is still unsure what the value to choose should
 just use 5,000 and move on.
@@ -136,9 +136,9 @@ due to concerns over recent cryptanalytic attacks.)
 
 ## TODO ##
 
-This version is essentially complete.  If ASN.1 weren't such a nightmare, it 
+This version is essentially complete.  If ASN.1 weren't such a nightmare, it
 might be useful to be able to initialize `PBKDF2` objects based on standard
-OIDs for parameters.  It would also be nice to have a standard envelope for 
+OIDs for parameters.  It would also be nice to have a standard envelope for
 serializing sets of {key, salt, options}.  Both of these are probably tasks
 for other modules, however.  (YAML fits the bill pretty well already.)
 

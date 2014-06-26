@@ -1,0 +1,4 @@
+inherit_from: .rubocop_todo.yml
+
+HashSyntax:
+  EnforcedStyle: hash_rockets
