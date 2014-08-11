@@ -59,7 +59,7 @@ describe PBKDF2, "when configuring a hash function" do
     p.hash_function.name.should == "SHA512"
   end
 
-  it "should allow setting by an instantiated object of type OpenSSL::Digest::Digest" do
+  it "should allow setting by an instantiated object of type OpenSSL::Digest::SHA512" do
     hfunc = OpenSSL::Digest::SHA512.new
     p = PBKDF2.new(:password=>"s33krit", :salt=>"nacl", :iterations=>1000, :hash_function=>hfunc)
     p.hash_function.name.should == "SHA512"
@@ -70,7 +70,7 @@ describe PBKDF2, "when setting a key length" do
   it "should default to the size of the hash function used" do
     %w{SHA1 SHA512 MD5}.each do |alg|
       p = PBKDF2.new(:password=>"s33krit", :salt=>"nacl", :iterations=>1000, :hash_function=>alg)
-      p.key_length.should == OpenSSL::Digest::Digest.new(alg).size
+      p.key_length.should == OpenSSL::Digest.new(alg).size
     end
   end
 

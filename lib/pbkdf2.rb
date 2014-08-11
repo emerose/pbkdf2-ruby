@@ -95,7 +95,6 @@ class PBKDF2
       # see if the OpenSSL lib understands it
       hash = OpenSSL::Digest.new(hash)
     when OpenSSL::Digest
-    when OpenSSL::Digest::Digest
       # ok
     else
       raise TypeError, "Unknown hash type: #{hash.class}"

@@ -59,7 +59,7 @@ PBKDF2 objects can also be configured with the following options:
       `OpenSSL::Digest::SHA512.new`. If you use this method, take care that
       the hash object is in its just-initialized state (or that the same hash
       object with the same state is used whenever keys are generated/checked).
-    * As a string which is understood by `OpenSSL::Digest::Digest.new()`.  
+    * As a string which is understood by `OpenSSL::Digest.new()`.  
       Things like "sha1", "md5", "RIPEMD160", etc. all work fine.  If the
       string begins with the text "hmacWith" it will be stripped before
       passing it to the underlying OpenSSL library, making it possible to use
